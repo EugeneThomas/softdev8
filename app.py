@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session, redirect, url_for
+from flask import Flask, request, render_template, session, redirect, url_for, flash
 import os
 
 app = Flask(__name__) #create instance of class
@@ -6,40 +6,57 @@ app.secret_key = os.urandom(32)
 
 # Usernames and Passwords...
 
-# For person 1... 
-user1 = "Jennifer"
-pass1 = "Zhang"
+# CREDITS TO TMOI AND SLAU FOR THIS IDEA:
 
-#For person 2... 
-user2 = "Eugene"
-pass2 = "Thomas"
-
-#encrypts the values that you put in our cookie
-app.secret_key = os.urandom(32)
+ACCOUNTS = {"Eugene": "Thomas", "Jennifer": "Zhang"} 
 
 ### The Root Route:
 
-@app.route("/", methods = ['GET', 'POST'])
+@app.route('/')
 def hello():
-    if request.method == 'POST':
-        if (request.form['pass'] == pass1 and request.form['username'] == user1) or (request.form['pass'] == pass2 and request.form['username'] == user2): #If the username-password pair matches...
-            session['user'] = request.form['username'] ## Add username to the session 
-            name = request.form['username']
-            return redirect('/logged_in') ## redirect to the welcome page
-            ## return redirect(url_for("ur_in")) has the same effect. 
-    return render_template('landing.html') # If the username/password don't match, redirect to the landing page. 
+    if 'user' in session.keys(): # If there is a session... 
+        return render_template('two.html', name = session['user']) # Direct to the logged in page
+    else: # IF NOT...
+        return render_template('landing.html') # Log in 
+        
 
-### The logged in page:
+### Authenticate Method
+    
+def aut(u, p):
+    if (u in ACCOUNTS):
+        if p == ACCOUNTS[u]:
+            return 0 #All correct
+        else:
+            return 1 #Wrong Password
+    else:
+        return -1 #Wrong Username 
+    
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    if 'user' not in session: 
+        if aut(request.form['user'], request.form['pass']) == 0:
+            session['user'] = request.form['user'] # Add user to the session. 
+            print session.keys()
+            flash('Logged Out') # For when you log out later in the session. 
+            return render_template('two.html', name = session['user']) 
+        elif aut(request.form['user'], request.form['pass']) == 1:
+            flash('Wrong password') 
+            return render_template('landing.html') 
+        else:
+            flash('Wrong Username') 
+            return render_template('landing.html')
+    else:
+        return render_template('two.html', name = session['user'])
+        
 
-@app.route('/logged_in')
-def ur_in():
-    return render_template('two.html') ## Render to the welcome page. 
+    
 
 ### After logging out:
 
 @app.route('/logout')
 def logout():
-    session.pop('user',None) ## Remove user from the session
+    if 'user' in session.keys(): 
+        session.pop('user',None) ## Remove user from the session
     return redirect("/") 
 
 if __name__=="__main__":

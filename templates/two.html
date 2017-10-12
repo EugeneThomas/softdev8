@@ -1,18 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-</head>
-<body>
-<center>
+{% extends "landing.html" %}
+{% block title %} WELCOME! {% endblock %}
+{% block header %} Welcome {{name}}! {% endblock %}
+{% block content %} Click <a href = "/logout"> here</a> to log out. {% endblock %}
 
-
-
-<font size = "7">
-<b>  Welcome!  <br>
-Click <a href = "/logout"> here</a> to log out.
-</font> </b>
-
-
-</center>
-</body>
-</html>
