@@ -36,8 +36,7 @@ def login():
     if 'user' not in session: 
         if aut(request.form['user'], request.form['pass']) == 0:
             session['user'] = request.form['user'] # Add user to the session. 
-            print session.keys()
-            flash('Logged Out') # For when you log out later in the session. 
+            print session.keys() 
             return render_template('two.html', name = session['user']) 
         elif aut(request.form['user'], request.form['pass']) == 1:
             flash('Wrong password') 
@@ -57,6 +56,7 @@ def login():
 def logout():
     if 'user' in session.keys(): 
         session.pop('user',None) ## Remove user from the session
+    flash('Logged Out') 
     return redirect("/") 
 
 if __name__=="__main__":
